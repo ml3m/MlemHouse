@@ -1,5 +1,6 @@
 <div align="center">
   <img src="static/img/logo.png" alt="MlemHouse Logo" width="150" height="150">
+  
   # MlemHouse
   ### *Smart IoT Device Manager & Analytics Dashboard* 🏠
   
