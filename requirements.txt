@@ -1,0 +1,21 @@
+# EcoHub: IoT Device Manager & Analytics Engine
+# Python 3.10+ required
+
+# Web Framework & Server
+fastapi>=0.109.0
+uvicorn[standard]>=0.27.0
+
+# Templates
+jinja2>=3.1.0
+
+# Data validation
+pydantic>=2.0.0
+
+# Note: The following are Python standard library modules used:
+# - asyncio: Asynchronous I/O for network simulation
+# - threading: Background storage worker
+# - queue: Thread-safe communication
+# - dataclasses: Structured data containers
+# - abc: Abstract base classes
+# - functools: Functional programming utilities (reduce)
+# - typing: Type hints

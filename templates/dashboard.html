@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MlemHouse | IoT Dashboard</title>
+    <link rel="stylesheet" href="/static/css/dashboard.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <div class="logo-icon">
+                    <img src="/static/img/logo.png" alt="MlemHouse Logo">
+                </div>
+                <span class="logo-text">MlemHouse</span>
+            </div>
+        </div>
+        
+        <nav class="sidebar-nav">
+            <a href="#" class="nav-item active" data-view="dashboard">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="3" width="7" height="7"></rect>
+                    <rect x="14" y="3" width="7" height="7"></rect>
+                    <rect x="14" y="14" width="7" height="7"></rect>
+                    <rect x="3" y="14" width="7" height="7"></rect>
+                </svg>
+                <span>Dashboard</span>
+            </a>
+            <a href="#" class="nav-item" data-view="devices">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect>
+                    <rect x="9" y="9" width="6" height="6"></rect>
+                    <line x1="9" y1="1" x2="9" y2="4"></line>
+                    <line x1="15" y1="1" x2="15" y2="4"></line>
+                    <line x1="9" y1="20" x2="9" y2="23"></line>
+                    <line x1="15" y1="20" x2="15" y2="23"></line>
+                    <line x1="20" y1="9" x2="23" y2="9"></line>
+                    <line x1="20" y1="14" x2="23" y2="14"></line>
+                    <line x1="1" y1="9" x2="4" y2="9"></line>
+                    <line x1="1" y1="14" x2="4" y2="14"></line>
+                </svg>
+                <span>Devices</span>
+            </a>
+            <a href="#" class="nav-item" data-view="analytics">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="20" x2="18" y2="10"></line>
+                    <line x1="12" y1="20" x2="12" y2="4"></line>
+                    <line x1="6" y1="20" x2="6" y2="14"></line>
+                </svg>
+                <span>Analytics</span>
+            </a>
+            <a href="#" class="nav-item" data-view="alerts">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                    <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                </svg>
+                <span>Alerts</span>
+                <span class="nav-badge" id="alert-badge">0</span>
+            </a>
+            <a href="#" class="nav-item" data-view="rooms">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                    <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                    <line x1="12" y1="22.08" x2="12" y2="12"></line>
+                </svg>
+                <span>Rooms</span>
+            </a>
+            <a href="#" class="nav-item" data-view="settings">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="3"></circle>
+                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                </svg>
+                <span>Settings</span>
+            </a>
+        </nav>
+        
+        <div class="sidebar-footer">
+            <div class="system-status">
+                <div class="status-indicator online"></div>
+                <span>System Online</span>
+            </div>
+            <div class="connection-status" id="connection-status">
+                <span class="ws-status">● Connected</span>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-left">
+                <h1 class="page-title">Dashboard</h1>
+                <span class="page-subtitle">Real-time IoT monitoring</span>
+            </div>
+            <div class="header-right">
+                <div class="header-time">
+                    <span id="current-time">--:--:--</span>
+                    <span id="current-date">--- --, ----</span>
+                </div>
+                <button class="btn-icon" id="refresh-btn" title="Refresh">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="23 4 23 10 17 10"></polyline>
+                        <polyline points="1 20 1 14 7 14"></polyline>
+                        <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+                    </svg>
+                </button>
+                <button class="btn-icon notification-btn" id="notification-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                        <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                    </svg>
+                    <span class="notification-count" id="notification-count">0</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Dashboard View -->
+        <div class="view active" id="view-dashboard">
+            <!-- Stats Cards - Row 1: Overview -->
+            <section class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon devices">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect>
+                            <rect x="9" y="9" width="6" height="6"></rect>
+                        </svg>
+                    </div>
+                    <div class="stat-content">
+                        <span class="stat-value" id="stat-devices">--</span>
+                        <span class="stat-label">Total Devices</span>
+                    </div>
+                    <div class="stat-trend up">
+                        <span id="stat-online">--</span> online
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon energy">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                        </svg>
+                    </div>
+                    <div class="stat-content">
+                        <span class="stat-value"><span id="stat-energy">--</span>W</span>
+                        <span class="stat-label">Power Usage</span>
+                    </div>
+                    <div class="stat-trend">
+                        <span id="stat-lights">--</span> lights on
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon temperature">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"></path>
+                        </svg>
+                    </div>
+                    <div class="stat-content">
+                        <span class="stat-value"><span id="stat-temp">--</span>°C</span>
+                        <span class="stat-label">Avg Temperature</span>
+                    </div>
+                    <div class="stat-trend neutral" id="stat-heating">
+                        Heating: Off
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon water">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path>
+                        </svg>
+                    </div>
+                    <div class="stat-content">
+                        <span class="stat-value"><span id="stat-water">--</span>L</span>
+                        <span class="stat-label">Water Today</span>
+                    </div>
+                    <div class="stat-trend" id="stat-flow">
+                        Flow: 0 L/min
+                    </div>
+                </div>
+            </section>
+
+            <!-- Stats Cards - Row 2: Costs (Session) -->
+            <section class="stats-grid costs-grid">
+                <div class="stat-card cost-card">
+                    <div class="stat-icon cost-electricity">⚡</div>
+                    <div class="stat-content">
+                        <span class="stat-value"><span id="stat-elec-cost">--</span> lei</span>
+                        <span class="stat-label">Electricity</span>
+                    </div>
+                    <div class="stat-trend">
+                        <span id="stat-elec-kwh">--</span> kWh
+                    </div>
+                </div>
+                
+                <div class="stat-card cost-card">
+                    <div class="stat-icon cost-gas">🔥</div>
+                    <div class="stat-content">
+                        <span class="stat-value"><span id="stat-gas-cost">--</span> lei</span>
+                        <span class="stat-label">Heating (Gas)</span>
+                    </div>
+                    <div class="stat-trend">
+                        <span id="stat-gas-kwh">--</span> kWh
+                    </div>
+                </div>
+                
+                <div class="stat-card cost-card">
+                    <div class="stat-icon cost-water">💧</div>
+                    <div class="stat-content">
+                        <span class="stat-value"><span id="stat-water-cost">--</span> lei</span>
+                        <span class="stat-label">Water</span>
+                    </div>
+                    <div class="stat-trend">
+                        <span id="stat-water-m3">--</span> m³
+                    </div>
+                </div>
+                
+                <div class="stat-card cost-card session-total">
+                    <div class="stat-icon cost-total">💰</div>
+                    <div class="stat-content">
+                        <span class="stat-value cost-amount"><span id="stat-session-total">--</span> lei</span>
+                        <span class="stat-label">Session Total</span>
+                    </div>
+                    <div class="stat-trend">
+                        <span id="stat-sim-time">--</span> simulated
+                    </div>
+                </div>
+                
+                <div class="stat-card cost-card estimated">
+                    <div class="stat-icon">📊</div>
+                    <div class="stat-content">
+                        <span class="stat-value cost-amount"><span id="stat-est-monthly">--</span> lei</span>
+                        <span class="stat-label cost-label">Est. Monthly</span>
+                    </div>
+                    <div class="stat-trend">
+                        🌱 <span id="stat-carbon">--</span> kg CO₂
+                    </div>
+                </div>
+            </section>
+
+            <!-- Main Grid -->
+            <div class="dashboard-grid">
+                <!-- Device Overview -->
+                <section class="card device-overview">
+                    <div class="card-header">
+                        <h2>Device Overview</h2>
+                        <div class="card-actions">
+                            <button class="btn-sm active" onclick="filterDevices('all')">All</button>
+                            <button class="btn-sm" onclick="filterDevices('BULB')">💡 Lights</button>
+                            <button class="btn-sm" onclick="filterDevices('THERMOSTAT')">🌡️ Climate</button>
+                            <button class="btn-sm" onclick="filterDevices('CAMERA')">📷 Cameras</button>
+                            <button class="btn-sm" onclick="filterDevices('WATER_METER')">💧 Water</button>
+                            <button class="btn-primary" onclick="openAddDeviceModal()">+ Add Device</button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="devices-grid" id="devices-grid">
+                            <!-- Devices populated by JS -->
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Energy Chart -->
+                <section class="card chart-card">
+                    <div class="card-header">
+                        <h2>Energy Consumption</h2>
+                        <span class="chart-period">Last 30 readings</span>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="energy-chart"></canvas>
+                    </div>
+                </section>
+
+                <!-- Temperature Chart -->
+                <section class="card chart-card">
+                    <div class="card-header">
+                        <h2>Temperature Trends</h2>
+                        <span class="chart-period">Real-time</span>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="temp-chart"></canvas>
+                    </div>
+                </section>
+
+                <!-- Recent Activity -->
+                <section class="card activity-card">
+                    <div class="card-header">
+                        <h2>Recent Activity</h2>
+                        <button class="btn-text" onclick="clearAlerts()">Clear All</button>
+                    </div>
+                    <div class="card-body">
+                        <div class="activity-list" id="activity-list">
+                            <!-- Activity items populated by JS -->
+                            <div class="activity-empty">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <polyline points="12 6 12 12 16 14"></polyline>
+                                </svg>
+                                <span>No recent activity</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Room Status -->
+                <section class="card rooms-card">
+                    <div class="card-header">
+                        <h2>Rooms</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="rooms-list" id="rooms-list">
+                            <!-- Rooms populated by JS -->
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+
+        <!-- Devices View -->
+        <div class="view" id="view-devices">
+            <section class="card full-width">
+                <div class="card-header">
+                    <h2>All Devices</h2>
+                    <div class="search-box">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                        <input type="text" placeholder="Search devices..." id="device-search">
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="devices-table-container">
+                        <table class="devices-table" id="devices-table">
+                            <thead>
+                                <tr>
+                                    <th>Device</th>
+                                    <th>Location</th>
+                                    <th>Status</th>
+                                    <th>Signal</th>
+                                    <th>Details</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="devices-table-body">
+                                <!-- Table rows populated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Analytics View -->
+        <div class="view" id="view-analytics">
+            <div class="analytics-grid">
+                <section class="card">
+                    <div class="card-header">
+                        <h2>System Health</h2>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="health-chart"></canvas>
+                    </div>
+                </section>
+                <section class="card">
+                    <div class="card-header">
+                        <h2>Battery Levels</h2>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="battery-chart"></canvas>
+                    </div>
+                </section>
+                <section class="card analytics-stats">
+                    <div class="card-header">
+                        <h2>Statistics</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="analytics-stat">
+                            <span class="analytics-stat-label">Total Readings</span>
+                            <span class="analytics-stat-value" id="analytics-readings">--</span>
+                        </div>
+                        <div class="analytics-stat">
+                            <span class="analytics-stat-label">Uptime</span>
+                            <span class="analytics-stat-value" id="analytics-uptime">--</span>
+                        </div>
+                        <div class="analytics-stat">
+                            <span class="analytics-stat-label">Avg Signal</span>
+                            <span class="analytics-stat-value" id="analytics-signal">--%</span>
+                        </div>
+                        <div class="analytics-stat">
+                            <span class="analytics-stat-label">Issues Resolved</span>
+                            <span class="analytics-stat-value" id="analytics-resolved">--</span>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+
+        <!-- Alerts View -->
+        <div class="view" id="view-alerts">
+            <section class="card full-width">
+                <div class="card-header">
+                    <h2>Alert Center</h2>
+                    <button class="btn-danger" onclick="clearAlerts()">Clear All Alerts</button>
+                </div>
+                <div class="card-body">
+                    <div class="alerts-list" id="alerts-list">
+                        <!-- Alerts populated by JS -->
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Rooms View -->
+        <div class="view" id="view-rooms">
+            <div class="rooms-grid" id="rooms-detail-grid">
+                <!-- Room cards populated by JS -->
+            </div>
+        </div>
+
+        <!-- Settings View -->
+        <div class="view" id="view-settings">
+            <div class="settings-grid">
+                <!-- General Settings -->
+                <section class="card">
+                    <div class="card-header">
+                        <h2>⚙️ General Settings</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <div class="setting-label">Experimental Features</div>
+                                <div class="setting-description">Enable advanced features like time simulation</div>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="experimental-toggle" onchange="toggleExperimental(this.checked)">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Time Simulation (Experimental) -->
+                <section class="card experimental-card" id="time-simulation-card" style="display: none;">
+                    <div class="card-header">
+                        <h2>⏱️ Time Simulation</h2>
+                        <span class="experimental-badge">EXPERIMENTAL</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <div class="setting-label">Time Speed</div>
+                                <div class="setting-description">Fast-forward time to see consumption over longer periods</div>
+                            </div>
+                        </div>
+                        <div class="time-controls">
+                            <button class="time-btn" data-multiplier="1" onclick="setTimeMultiplier(1)">1x Real-time</button>
+                            <button class="time-btn" data-multiplier="10" onclick="setTimeMultiplier(10)">10x</button>
+                            <button class="time-btn" data-multiplier="60" onclick="setTimeMultiplier(60)">1 min/sec</button>
+                            <button class="time-btn" data-multiplier="360" onclick="setTimeMultiplier(360)">1 hr/10sec</button>
+                            <button class="time-btn" data-multiplier="1440" onclick="setTimeMultiplier(1440)">1 day/min</button>
+                        </div>
+                        <div class="simulation-stats">
+                            <div class="sim-stat">
+                                <span class="sim-stat-label">Current Speed</span>
+                                <span class="sim-stat-value" id="current-speed">1x</span>
+                            </div>
+                            <div class="sim-stat">
+                                <span class="sim-stat-label">Simulated Time</span>
+                                <span class="sim-stat-value" id="simulated-time">0h</span>
+                            </div>
+                        </div>
+                        <button class="btn-danger" onclick="resetSimulation()" style="margin-top: 16px;">🔄 Reset Counters</button>
+                    </div>
+                </section>
+
+                <!-- Utility Rates -->
+                <section class="card">
+                    <div class="card-header">
+                        <h2>💰 Utility Rates (Timișoara, RO)</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="rates-grid">
+                            <div class="rate-item">
+                                <span class="rate-icon">⚡</span>
+                                <div class="rate-info">
+                                    <div class="rate-label">Electricity</div>
+                                    <div class="rate-value">1.10 lei/kWh</div>
+                                </div>
+                            </div>
+                            <div class="rate-item">
+                                <span class="rate-icon">🔥</span>
+                                <div class="rate-info">
+                                    <div class="rate-label">Gas (Heating)</div>
+                                    <div class="rate-value">0.31 lei/kWh</div>
+                                </div>
+                            </div>
+                            <div class="rate-item">
+                                <span class="rate-icon">💧</span>
+                                <div class="rate-info">
+                                    <div class="rate-label">Water + Sewage</div>
+                                    <div class="rate-value">12.21 lei/m³</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Energy Info -->
+                <section class="card">
+                    <div class="card-header">
+                        <h2>📊 Current Consumption</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="consumption-stats">
+                            <div class="consumption-item">
+                                <span class="consumption-label">Electricity Used</span>
+                                <span class="consumption-value" id="settings-elec-kwh">0.000 kWh</span>
+                            </div>
+                            <div class="consumption-item">
+                                <span class="consumption-label">Gas Used</span>
+                                <span class="consumption-value" id="settings-gas-kwh">0.000 kWh</span>
+                            </div>
+                            <div class="consumption-item">
+                                <span class="consumption-label">Water Used</span>
+                                <span class="consumption-value" id="settings-water-m3">0.00 m³</span>
+                            </div>
+                            <div class="consumption-item total">
+                                <span class="consumption-label">Total Cost</span>
+                                <span class="consumption-value" id="settings-total-cost">0.00 lei</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </main>
+
+    <!-- Device Control Modal -->
+    <div class="modal" id="device-modal">
+        <div class="modal-backdrop" onclick="closeModal()"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-device-name">Device Control</h3>
+                <button class="modal-close" onclick="closeModal()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body" id="modal-body">
+                <!-- Modal content populated by JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Device Modal -->
+    <div class="modal" id="add-device-modal">
+        <div class="modal-backdrop" onclick="closeAddDeviceModal()"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Add New Device</h3>
+                <button class="modal-close" onclick="closeAddDeviceModal()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="add-device-form" onsubmit="submitNewDevice(event)">
+                    <div class="form-group">
+                        <label class="form-label">Device Type</label>
+                        <select id="new-device-type" class="form-select" required onchange="updateDeviceForm()">
+                            <option value="">Select type...</option>
+                            <option value="BULB">💡 Smart Bulb</option>
+                            <option value="THERMOSTAT">🌡️ Thermostat</option>
+                            <option value="CAMERA">📷 Camera</option>
+                            <option value="WATER_METER">💧 Water Meter</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Device ID</label>
+                        <input type="text" id="new-device-id" class="form-input" placeholder="e.g., bulb_005" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Device Name</label>
+                        <input type="text" id="new-device-name" class="form-input" placeholder="e.g., Office Light" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Location</label>
+                        <select id="new-device-location" class="form-select" required>
+                            <option value="">Select location...</option>
+                            <option value="Living Room">Living Room</option>
+                            <option value="Bedroom">Bedroom</option>
+                            <option value="Kitchen">Kitchen</option>
+                            <option value="Bathroom">Bathroom</option>
+                            <option value="Entrance">Entrance</option>
+                            <option value="Backyard">Backyard</option>
+                            <option value="Garden">Garden</option>
+                            <option value="Garage">Garage</option>
+                            <option value="Office">Office</option>
+                            <option value="Utility Room">Utility Room</option>
+                        </select>
+                    </div>
+                    <div id="device-specific-fields">
+                        <!-- Populated based on device type -->
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn-secondary" onclick="closeAddDeviceModal()">Cancel</button>
+                        <button type="submit" class="btn-primary">Add Device</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <script src="/static/js/dashboard.js"></script>
+</body>
+</html>

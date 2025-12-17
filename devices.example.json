@@ -1,0 +1,54 @@
+{
+  "devices": [
+    {
+      "device_id": "bulb-living-001",
+      "device_type": "BULB",
+      "name": "Living Room Light",
+      "location": "Living Room"
+    },
+    {
+      "device_id": "bulb-kitchen-001",
+      "device_type": "BULB",
+      "name": "Kitchen Light",
+      "location": "Kitchen"
+    },
+    {
+      "device_id": "thermo-living-001",
+      "device_type": "THERMOSTAT",
+      "name": "Living Room Climate",
+      "location": "Living Room"
+    },
+    {
+      "device_id": "thermo-bedroom-001",
+      "device_type": "THERMOSTAT",
+      "name": "Bedroom Climate",
+      "location": "Bedroom"
+    },
+    {
+      "device_id": "cam-front-001",
+      "device_type": "CAMERA",
+      "name": "Front Door Cam",
+      "location": "Front Door"
+    },
+    {
+      "device_id": "cam-backyard-001",
+      "device_type": "CAMERA",
+      "name": "Backyard Cam",
+      "location": "Backyard"
+    },
+    {
+      "device_id": "water-bathroom-001",
+      "device_type": "WATER_METER",
+      "name": "Bathroom Water",
+      "location": "Bathroom",
+      "water_source": "bathroom"
+    },
+    {
+      "device_id": "water-kitchen-001",
+      "device_type": "WATER_METER",
+      "name": "Kitchen Water",
+      "location": "Kitchen",
+      "water_source": "kitchen"
+    }
+  ]
+}
