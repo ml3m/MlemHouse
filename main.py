@@ -6,93 +6,95 @@ import argparse
 import signal
 import sys
 
-from devices import SmartDevice, SmartBulb, SmartThermostat, SmartCamera
+from devices import SmartDevice, SmartBulb, SmartThermostat, SmartCamera, SmartWaterMeter
 from storage import StorageWorker, StorageStats
 from network import NetworkController
-from analytics import process_updates
-from utils import print_report
+from analytics import f_process_updates
+from utils import f_print_report
 
 
-def make_devices():
-    devs = []
+def f_make_devices():
+    v_devs = []
     
-    b1 = SmartBulb("bulb_01", "Mysterious Smart Bulb", "Living Room")
-    b1.brightness = 100
-    b1.is_on = False
-    devs.append(b1)
+    v_b1 = SmartBulb("bulb1", "Living Room Light", "Living Room")
+    v_b1.brightness = 100
+    v_b1.is_on = True
+    v_devs.append(v_b1)
     
-    b2 = SmartBulb("bulb_02", "Ambient Smart Bulb", "Bedroom")
-    b2.brightness = 50
-    b2.is_on = True
-    devs.append(b2)
+    v_b2 = SmartBulb("bulb2", "Bedroom Light", "Bedroom")
+    v_b2.brightness = 50
+    v_b2.is_on = True
+    v_devs.append(v_b2)
     
-    t1 = SmartThermostat("thermo_01", "Famous Smart Thermostat", "Living Room")
-    t1.target_temp = 24
-    t1.current_temp = 23
-    t1.humidity = 45
-    devs.append(t1)
+    v_t1 = SmartThermostat("thermo1", "Living Room Thermostat", "Living Room")
+    v_t1.target_temp = 24
+    v_t1.current_temp = 23
+    v_t1.humidity = 45
+    v_devs.append(v_t1)
     
-    t2 = SmartThermostat("thermo_02", "Cozy Smart Thermostat", "Bedroom")
-    t2.target_temp = 22
-    t2.current_temp = 28
-    t2.humidity = 78
-    devs.append(t2)
+    v_t2 = SmartThermostat("thermo2", "Bedroom Thermostat", "Bedroom")
+    v_t2.target_temp = 22
+    v_t2.current_temp = 28
+    v_t2.humidity = 78
+    v_devs.append(v_t2)
     
-    c1 = SmartCamera("cam_01", "Gorgeous Smart Camera", "Front Door")
-    c1.battery_level = 25
-    devs.append(c1)
+    v_c1 = SmartCamera("seccam1", "Front Door Camera", "Front Door")
+    v_c1.battery_level = 25
+    v_devs.append(v_c1)
     
-    c2 = SmartCamera("cam_02", "Vigilant Smart Camera", "Backyard")
-    c2.battery_level = 85
-    c2._storage_used_mb = 30000
-    devs.append(c2)
+    v_c2 = SmartCamera("seccam2", "Backyard Camera", "Backyard")
+    v_c2.battery_level = 85
+    v_c2._storage_used_mb = 30000
+    v_devs.append(v_c2)
     
-    return devs
+    v_w1 = SmartWaterMeter("water1", "Main Water Meter", "Utility Room")
+    v_devs.append(v_w1)
+    
+    return v_devs
 
 
-
-
-async def main(duration=30):
-    storage = StorageWorker("history.log")
-    storage.start()
-    stats = StorageStats(storage)
+async def f_main(v_duration=30, v_speed=1.0):
+    v_storage = StorageWorker("history.log")
+    v_storage.start()
+    v_stats = StorageStats(v_storage)
     
-    devices = make_devices()
-    print(f"\nCreated {len(devices)} devices:")
-    for d in devices:
-        print(f"  - {d.name} ({d.device_type}) @ {d.location}")
+    v_devices = f_make_devices()
+    print(f"\nCreated {len(v_devices)} devices:")
+    for v_d in v_devices:
+        print(f"  - {v_d.name} ({v_d.device_type}) @ {v_d.location}")
     
-    ctrl = NetworkController(devices=devices, storage=storage)
-    await ctrl.connect_all()
+    v_ctrl = NetworkController(devices=v_devices, storage=v_storage, speed=v_speed)
+    await v_ctrl.connect_all()
     
-    print(f"Monitoring for {duration}s...\n")
+    print(f"Monitoring for {v_duration}s (speed: {v_speed}x)...\n")
     
     try:
-        await ctrl.start(duration=duration)
+        await v_ctrl.start(v_duration=v_duration)
     except KeyboardInterrupt:
         print("\nInterrupted")
-        await ctrl.stop()
+        await v_ctrl.stop()
     
-    readings = ctrl.get_readings()
-    if readings:
-        res = process_updates(readings)
-        print_report(ctrl, res, stats)
+    v_readings = v_ctrl.get_readings()
+    if v_readings:
+        v_res = f_process_updates(v_readings)
+        f_print_report(v_ctrl, v_res, v_stats)
     
-    storage.stop()
+    v_storage.stop()
 
 
-def run():
-    parser = argparse.ArgumentParser(description="EcoHub IoT sim")
-    parser.add_argument("-d", "--duration", type=float, default=30, help="seconds to run")
-    args = parser.parse_args()
+def f_run():
+    v_parser = argparse.ArgumentParser(description="EcoHub IoT Simulator")
+    v_parser.add_argument("--runtime", type=float, default=30, help="Runtime in seconds (default: 30)")
+    v_parser.add_argument("--speed", type=float, default=1.0, help="Speed multiplier (default: 1.0)")
+    v_args = v_parser.parse_args()
     
     signal.signal(signal.SIGINT, lambda s, f: sys.exit(0))
     
     try:
-        asyncio.run(main(args.duration))
+        asyncio.run(f_main(v_args.runtime, v_args.speed))
     except KeyboardInterrupt:
         print("\nDone")
 
 
 if __name__ == "__main__":
-    run()
+    f_run()

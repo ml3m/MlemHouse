@@ -6,9 +6,9 @@ import time
 
 
 class StorageWorker:
-    def __init__(self, log_file="history.log", flush_every=0.5):
-        self.log_file = log_file
-        self.flush_every = flush_every
+    def __init__(self, v_log_file="history.log", v_flush_every=0.5):
+        self.log_file = v_log_file
+        self.flush_every = v_flush_every
         self._q = queue.Queue()
         self._thread = None
         self._running = False
@@ -32,74 +32,74 @@ class StorageWorker:
         self._thread.start()
         print("Storage Thread Started...")
     
-    def stop(self, timeout=5):
+    def stop(self, v_timeout=5):
         if not self._running:
             return
         self._running = False
         self._q.put(None)
         if self._thread:
-            self._thread.join(timeout)
+            self._thread.join(v_timeout)
             if self._thread.is_alive():
                 print("Warning: thread didnt stop")
             else:
                 print(f"Storage stopped. Wrote {self._count} records")
     
-    def enqueue(self, data):
+    def enqueue(self, v_data):
         if self._running:
-            self._q.put(data)
+            self._q.put(v_data)
     
     def _loop(self):
-        last = time.time()
-        f = open(self.log_file, "a")
+        v_last = time.time()
+        v_file = open(self.log_file, "a")
         try:
             while self._running or not self._q.empty():
                 try:
-                    item = self._q.get(timeout=self.flush_every)
+                    v_item = self._q.get(timeout=self.flush_every)
                 except queue.Empty:
-                    if time.time() - last >= self.flush_every:
-                        f.flush()
-                        last = time.time()
+                    if time.time() - v_last >= self.flush_every:
+                        v_file.flush()
+                        v_last = time.time()
                     continue
                 
-                if item is None:
+                if v_item is None:
                     break
                 
-                f.write(str(item) + "\n")
+                v_file.write(str(v_item) + "\n")
                 with self._lock:
                     self._count += 1
                 self._q.task_done()
                 
-                if time.time() - last >= self.flush_every:
-                    f.flush()
-                    last = time.time()
+                if time.time() - v_last >= self.flush_every:
+                    v_file.flush()
+                    v_last = time.time()
             
-            f.flush()
+            v_file.flush()
         except IOError as e:
             print(f"Write error: {e}")
         finally:
-            f.close()
+            v_file.close()
 
 
 class StorageStats:
-    def __init__(self, worker):
-        self.worker = worker
+    def __init__(self, v_worker):
+        self.worker = v_worker
         self.started = time.time()
     
     def get_stats(self):
-        elapsed = time.time() - self.started
-        recs = self.worker.records_written
+        v_elapsed = time.time() - self.started
+        v_recs = self.worker.records_written
         return {
-            "records_written": recs,
+            "records_written": v_recs,
             "queue_size": self.worker.queue_size,
-            "elapsed": elapsed,
-            "rate": recs / elapsed if elapsed > 0 else 0
+            "elapsed": v_elapsed,
+            "rate": v_recs / v_elapsed if v_elapsed > 0 else 0
         }
     
     def print_stats(self):
-        s = self.get_stats()
+        v_s = self.get_stats()
         print()
         print("--- Storage Stats ---")
-        print(f"Written: {s['records_written']}")
-        print(f"Queue: {s['queue_size']}")
-        print(f"Time: {s['elapsed']:.1f}s")
-        print(f"Rate: {s['rate']:.1f}/s")
+        print(f"Written: {v_s['records_written']}")
+        print(f"Queue: {v_s['queue_size']}")
+        print(f"Time: {v_s['elapsed']:.1f}s")
+        print(f"Rate: {v_s['rate']:.1f}/s")

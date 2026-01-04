@@ -1,0 +1,14 @@
+how to run this project. 
+========================================
+
+1. Run the simulator:
+   python3 main.py
+
+2. Run with options:
+   python3 main.py --runtime 30 --speed 2
+
+   --runtime <seconds>   Duration to run (default: 20)
+   --speed <multiplier>  Speed up updates (default: 1.0)
+
+3. Output files:
+   - history.log: Device update history

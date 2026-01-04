@@ -21,7 +21,7 @@ from devices import (
     DeviceStatus, DeviceIssue, create_device
 )
 from storage import StorageWorker
-from analytics import process_updates, AnalyticsPipeline, make_reading
+from analytics import f_process_updates, AnalyticsPipeline, f_make_reading
 from config import (
     UTILITY_RATES, CURRENCY, DEVICE_ENERGY, HEATING_CONFIG, CARBON_FOOTPRINT,
     TIME_SIMULATION,
@@ -823,7 +823,7 @@ async def get_analytics():
     """Get analytics data"""
     if not device_manager.readings:
         return {"metrics": {}, "critical_events": [], "total_readings": 0}
-    return process_updates(device_manager.readings[-500:])
+    return f_process_updates(device_manager.readings[-500:])
 
 
 @app.get("/api/config/rates")

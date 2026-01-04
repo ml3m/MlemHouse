@@ -29,233 +29,230 @@ class AnalyticsResult:
         return f"{self.metric_name}: {self.value} (from {self.device_count} devices)"
 
 
-def make_reading(raw):
+def f_make_reading(v_raw):
     """raw dict -> DeviceReading"""
     return DeviceReading(
-        device_id=raw.get("device_id", "unknown"),
-        device_type=raw.get("type", "GENERIC"),
-        timestamp=raw.get("timestamp") or datetime.now().timestamp(),
-        value=raw.get("payload", {}),
-        signal_strength=raw.get("signal_strength", 100),
-        status=raw.get("status", "online"),
-        issue=raw.get("issue", "none"),
-        response_time_ms=raw.get("response_time_ms", 50)
+        device_id=v_raw.get("device_id", "unknown"),
+        device_type=v_raw.get("type", "GENERIC"),
+        timestamp=v_raw.get("timestamp") or datetime.now().timestamp(),
+        value=v_raw.get("payload", {}),
+        signal_strength=v_raw.get("signal_strength", 100),
+        status=v_raw.get("status", "online"),
+        issue=v_raw.get("issue", "none"),
+        response_time_ms=v_raw.get("response_time_ms", 50)
     )
 
 
-def is_high_temp(r, thresh=30.0):
-    if r.device_type != "THERMOSTAT":
+def f_is_high_temp(v_r, v_thresh=30.0):
+    if v_r.device_type != "THERMOSTAT":
         return False
-    return r.value.get("current_temp", 0) > thresh
+    return v_r.value.get("current_temp", 0) > v_thresh
 
-def is_low_batt(r, thresh=10.0):
-    if r.device_type != "CAMERA":
+def f_is_low_batt(v_r, v_thresh=10.0):
+    if v_r.device_type != "CAMERA":
         return False
-    return r.value.get("battery_level", 100) < thresh
+    return v_r.value.get("battery_level", 100) < v_thresh
 
-def has_motion(r):
-    return r.device_type == "CAMERA" and r.value.get("motion_detected", False)
+def f_has_motion(v_r):
+    return v_r.device_type == "CAMERA" and v_r.value.get("motion_detected", False)
 
-def has_issue(r):
+def f_has_issue(v_r):
     """Check if reading has any issue"""
-    return r.issue != "none"
+    return v_r.issue != "none"
 
 
-def get_critical(readings):
-    """Filter for critical events using functional filter (not imperative loops)"""
+def f_get_critical(v_readings):
+    """Filter for critical events using functional filter"""
     return list(filter(
-        lambda r: is_high_temp(r) or is_low_batt(r) or has_motion(r),
-        readings
+        lambda r: f_is_high_temp(r) or f_is_low_batt(r) or f_has_motion(r),
+        v_readings
     ))
 
 
-def avg_temp(readings):
+def f_avg_temp(v_readings):
     """Calculate average temperature using functools.reduce"""
-    thermos = list(filter(lambda r: r.device_type == "THERMOSTAT", readings))
-    if not thermos:
+    v_thermos = list(filter(lambda r: r.device_type == "THERMOSTAT", v_readings))
+    if not v_thermos:
         return AnalyticsResult("Average Temperature", None, datetime.now().timestamp(), 0)
     
-    # Using reduce to sum all temperatures (functional programming requirement)
-    total_temp = reduce(
+    v_total_temp = reduce(
         lambda acc, r: acc + r.value.get("current_temp", 0),
-        thermos,
+        v_thermos,
         0
     )
     
     return AnalyticsResult(
         "Average Temperature",
-        round(total_temp / len(thermos), 2),
+        round(v_total_temp / len(v_thermos), 2),
         datetime.now().timestamp(),
-        len(thermos)
+        len(v_thermos)
     )
 
 
-def total_energy(readings):
+def f_total_energy(v_readings):
     """Calculate total energy consumption using functools.reduce"""
-    # Filter for bulbs that are on (functional programming)
-    on_bulbs = list(filter(
+    v_on_bulbs = list(filter(
         lambda r: r.device_type == "BULB" and r.value.get("is_on"),
-        readings
+        v_readings
     ))
     
-    if len(on_bulbs) == 0:
+    if len(v_on_bulbs) == 0:
         return AnalyticsResult("Total Energy Consumption", 0.0, datetime.now().timestamp(), 0)
     
-    # Using reduce to calculate total watts (functional programming requirement)
-    # Assume 10W max per bulb, scaled by brightness
-    total_watts = reduce(
+    v_total_watts = reduce(
         lambda acc, b: acc + (b.value.get("brightness", 0) / 100) * 10,
-        on_bulbs,
+        v_on_bulbs,
         0
     )
     
     return AnalyticsResult(
         "Total Energy Consumption",
-        round(total_watts, 2),
+        round(v_total_watts, 2),
         datetime.now().timestamp(),
-        len(on_bulbs)
+        len(v_on_bulbs)
     )
 
 
-def avg_battery(readings):
+def f_avg_battery(v_readings):
     """Calculate average battery level using functools.reduce"""
-    cams = list(filter(lambda r: r.device_type == "CAMERA", readings))
-    if not cams:
+    v_cams = list(filter(lambda r: r.device_type == "CAMERA", v_readings))
+    if not v_cams:
         return AnalyticsResult("Average Battery Level", None, datetime.now().timestamp(), 0)
     
-    # Using reduce to sum battery levels (functional programming requirement)
-    total_battery = reduce(
+    v_total_battery = reduce(
         lambda acc, c: acc + c.value.get("battery_level", 0),
-        cams,
+        v_cams,
         0
     )
     
     return AnalyticsResult(
         "Average Battery Level",
-        round(total_battery / len(cams), 2),
+        round(v_total_battery / len(v_cams), 2),
         datetime.now().timestamp(),
-        len(cams)
+        len(v_cams)
     )
 
 
-def count_devices(readings):
+def f_count_devices(v_readings):
     """Count unique active devices using functional map"""
-    # Using map to extract device_ids, then set for uniqueness
-    unique_ids = set(map(lambda r: r.device_id, readings))
-    n = len(unique_ids)
-    return AnalyticsResult("Active Devices", n, datetime.now().timestamp(), n)
+    v_unique_ids = set(map(lambda r: r.device_id, v_readings))
+    v_n = len(v_unique_ids)
+    return AnalyticsResult("Active Devices", v_n, datetime.now().timestamp(), v_n)
 
 
-def avg_signal(readings):
+def f_avg_signal(v_readings):
     """Calculate average signal strength across all devices"""
-    if not readings:
+    if not v_readings:
         return AnalyticsResult("Average Signal Strength", None, datetime.now().timestamp(), 0)
     
-    total = sum(r.signal_strength for r in readings)
+    v_total = sum(r.signal_strength for r in v_readings)
     return AnalyticsResult(
         "Average Signal Strength",
-        round(total / len(readings), 1),
+        round(v_total / len(v_readings), 1),
         datetime.now().timestamp(),
-        len(readings)
+        len(v_readings)
     )
 
 
-def avg_response_time(readings):
+def f_avg_response_time(v_readings):
     """Calculate average response time"""
-    if not readings:
+    if not v_readings:
         return AnalyticsResult("Average Response Time", None, datetime.now().timestamp(), 0)
     
-    total = sum(r.response_time_ms for r in readings)
+    v_total = sum(r.response_time_ms for r in v_readings)
     return AnalyticsResult(
         "Average Response Time",
-        f"{round(total / len(readings), 1)}ms",
+        f"{round(v_total / len(v_readings), 1)}ms",
         datetime.now().timestamp(),
-        len(readings)
+        len(v_readings)
     )
 
 
-def issue_breakdown(readings):
+def f_issue_breakdown(v_readings):
     """Get breakdown of issues by type"""
-    issues = defaultdict(int)
-    for r in readings:
-        if r.issue != "none":
-            issues[r.issue] += 1
-    return dict(issues)
+    v_issues = defaultdict(int)
+    for v_r in v_readings:
+        if v_r.issue != "none":
+            v_issues[v_r.issue] += 1
+    return dict(v_issues)
 
 
-def device_health_score(readings):
+def f_device_health_score(v_readings):
     """Calculate overall health score (0-100)"""
-    if not readings:
+    if not v_readings:
         return AnalyticsResult("Health Score", None, datetime.now().timestamp(), 0)
     
-    # Factors: signal strength, issues, response time
-    scores = []
-    for r in readings:
-        score = 100
-        # Deduct for weak signal
-        if r.signal_strength < 50:
-            score -= (50 - r.signal_strength)
-        # Deduct for issues
-        if r.issue != "none":
-            score -= 20
-        # Deduct for slow response
-        if r.response_time_ms > 500:
-            score -= min(30, (r.response_time_ms - 500) // 100)
-        scores.append(max(0, score))
+    v_scores = []
+    for v_r in v_readings:
+        v_score = 100
+        if v_r.signal_strength < 50:
+            v_score -= (50 - v_r.signal_strength)
+        if v_r.issue != "none":
+            v_score -= 20
+        if v_r.response_time_ms > 500:
+            v_score -= min(30, (v_r.response_time_ms - 500) // 100)
+        v_scores.append(max(0, v_score))
     
-    avg = sum(scores) / len(scores)
+    v_avg = sum(v_scores) / len(v_scores)
     return AnalyticsResult(
         "Health Score",
-        f"{round(avg, 1)}/100",
+        f"{round(v_avg, 1)}/100",
         datetime.now().timestamp(),
-        len(readings)
+        len(v_readings)
     )
 
 
 class AnalyticsPipeline:
-    def __init__(self, readings):
-        self._data = list(readings)
+    def __init__(self, v_readings):
+        self._data = list(v_readings)
     
     @classmethod
-    def from_raw(cls, updates):
-        return cls([make_reading(u) for u in updates])
+    def from_raw(cls, v_updates):
+        return cls([f_make_reading(u) for u in v_updates])
     
-    def filter_type(self, dtype):
-        filtered = [r for r in self._data if r.device_type == dtype]
-        return AnalyticsPipeline(filtered)
+    def filter_type(self, v_dtype):
+        v_filtered = [r for r in self._data if r.device_type == v_dtype]
+        return AnalyticsPipeline(v_filtered)
     
     def filter_critical(self):
-        return AnalyticsPipeline(get_critical(self._data))
+        return AnalyticsPipeline(f_get_critical(self._data))
     
     def get_readings(self):
         return self._data
     
     def calc_metrics(self):
         return {
-            "average_temperature": avg_temp(self._data),
-            "total_energy": total_energy(self._data),
-            "average_battery": avg_battery(self._data),
-            "active_devices": count_devices(self._data),
-            "average_signal": avg_signal(self._data),
-            "response_time": avg_response_time(self._data),
-            "health_score": device_health_score(self._data)
+            "average_temperature": f_avg_temp(self._data),
+            "total_energy": f_total_energy(self._data),
+            "average_battery": f_avg_battery(self._data),
+            "active_devices": f_count_devices(self._data),
+            "average_signal": f_avg_signal(self._data),
+            "response_time": f_avg_response_time(self._data),
+            "health_score": f_device_health_score(self._data)
         }
     
     def get_issue_breakdown(self):
-        return issue_breakdown(self._data)
+        return f_issue_breakdown(self._data)
     
     def filter_issues(self):
         """Filter readings that have issues"""
-        filtered = [r for r in self._data if r.issue != "none"]
-        return AnalyticsPipeline(filtered)
+        v_filtered = [r for r in self._data if r.issue != "none"]
+        return AnalyticsPipeline(v_filtered)
 
 
-def process_updates(raw_updates):
-    pipe = AnalyticsPipeline.from_raw(raw_updates)
+def f_process_updates(v_raw_updates):
+    v_pipe = AnalyticsPipeline.from_raw(v_raw_updates)
     return {
-        "metrics": pipe.calc_metrics(),
-        "critical_events": pipe.filter_critical().get_readings(),
-        "total_readings": len(raw_updates),
-        "issue_breakdown": pipe.get_issue_breakdown(),
-        "issues_count": len(pipe.filter_issues().get_readings())
+        "metrics": v_pipe.calc_metrics(),
+        "critical_events": v_pipe.filter_critical().get_readings(),
+        "total_readings": len(v_raw_updates),
+        "issue_breakdown": v_pipe.get_issue_breakdown(),
+        "issues_count": len(v_pipe.filter_issues().get_readings())
     }
+
+
+# Keep old name for backwards compatibility
+is_high_temp = f_is_high_temp
+is_low_batt = f_is_low_batt
+has_motion = f_has_motion
+process_updates = f_process_updates
